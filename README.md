@@ -1,1 +1,3 @@
-ANPSlurp
+Usage:
+
+node csvGenerator.js

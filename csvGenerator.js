@@ -1,0 +1,41 @@
+let Parser = require('rss-parser');
+let fs = require('fs');
+let parser = new Parser({customFields: {
+    item: [['media:provincie', 'provincie'],['media:grootste', 'big']]
+  }
+});
+
+
+var CSVTextBuffer = "";
+var gemeenteResultatenRange = {min:1, max:380}
+
+
+
+function isGemeenteUitslag(link){
+	tlink = link.split("/")[6].split(".xml")[0];
+	return (tlink >= gemeenteResultatenRange.min && tlink <= gemeenteResultatenRange.max);
+}
+
+function ParseAMPRSSFeed(feed){
+	items = feed.items;
+	for (var item in items) {
+    if (items.hasOwnProperty(item)) {
+        	if(isGemeenteUitslag(items[item].link)){
+				let gemeente = items[item];
+				let naam = gemeente.title;
+				let huidigGrootste = gemeente.big['$'].cur;
+				let histGrootste = gemeente.big['$'].prev;
+				CSVLine = `${naam},${huidigGrootste},${histGrootste}\n`;
+				CSVTextBuffer += CSVLine;
+        	}
+    	}
+	}
+	fs.writeFile('results.csv', CSVTextBuffer, 'utf8',() => {
+		console.log("Wrote file to results.csv")
+	});
+}
+
+
+parser.parseURL('https://verkiezingsdienst.anp.nl/rss/verkiezingen/gr2014/index.rss', function(err, feed) {
+  ParseAMPRSSFeed(feed);
+})
