@@ -1,3 +1,4 @@
+var args = process.argv.slice(2);
 let Parser = require('rss-parser');
 let fs = require('fs');
 let parser = new Parser({customFields: {
@@ -36,6 +37,15 @@ function ParseAMPRSSFeed(feed){
 }
 
 
-parser.parseURL('https://verkiezingsdienst.anp.nl/rss/verkiezingen/gr2014/index.rss', function(err, feed) {
+RSSurl = ""
+if(args.length > 0){
+  RSSurl = args[0]
+} else {
+	console.log("Use node csvGenerator.js https://verkiezingsdienst.anp.nl/rss/verkiezingen/gr2014/index.rss");
+	process.exit()
+}
+
+parser.parseURL(RSSurl, function(err, feed) {
   ParseAMPRSSFeed(feed);
 })
+
